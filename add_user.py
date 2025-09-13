@@ -2,6 +2,8 @@
 import hashlib
 # for sql database handling
 import sqlite3
+# for hiding password
+from getpass import getpass
 
 # adding user credentials to existing sql database (passwords hashed)
 DATABASE = "ppab6.db"
@@ -14,16 +16,16 @@ def add_user(username, password):
   connection = sqlite3.connect(DATABASE)
   cur = connection.cursor()
   pwd_hashed = hash_sha256(password)
-  command = "INSERT INTO users VALUES ('" + username + "', '" + pwd_hashed + "')"
-  cur.execute(command)
+  command = "INSERT INTO users VALUES (?, ?)"
+  cur.execute(command, (username, pwd_hashed))
   connection.commit()
   connection.close()
 
 def username_is_taken(username):
   connection = sqlite3.connect(DATABASE)
   cur = connection.cursor()
-  command = "SELECT * FROM users WHERE username='" + username + "'"
-  res = cur.execute(command).fetchone()
+  command = "SELECT * FROM users WHERE username = ? "
+  res = cur.execute(command, (username,)).fetchone()
   connection.close()
   return (res != None)
     
@@ -33,6 +35,6 @@ if __name__ == "__main__":
     print("This username is already taken. Please select a different one.")
     username = str(input("username? "))
   else:
-    password = str(input("password? "))
+    password = getpass("Password? ")
     add_user(username, password)
     print("User " + username + " added!")

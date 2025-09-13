@@ -2,6 +2,8 @@
 import hashlib
 # for sql database handling
 import sqlite3
+# for hiding password
+from getpass import getpass
 
 # checking against query from sql database (passwords hashed)
 DATABASE = "ppab6.db"
@@ -13,8 +15,8 @@ def hash_sha256(plaintext):
 def check_credentials(username, password):
   connection = sqlite3.connect(DATABASE)
   cur = connection.cursor()
-  command = "SELECT * FROM users WHERE username='" + username + "'"
-  res = cur.execute(command).fetchone()
+  command = "SELECT * FROM users WHERE username = ?"
+  res = cur.execute(command, (username,)).fetchone()
 
   valid = 0
   if res != None:
@@ -25,8 +27,8 @@ def check_credentials(username, password):
   return (valid == 1)
     
 if __name__ == "__main__":
-  username = str(input("username? "))
-  password = str(input("password? "))
+  username = str(input("Username? "))
+  password = getpass("Password? ")
   if check_credentials(username, password):
     print("You're logged in! Here's a secret!")
   else:
